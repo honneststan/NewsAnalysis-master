@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+read news
+{% endblock %}
+{% block content %}
+{% for news in newses %}
+Id: {{news.id}} <br>
+Title: {{news.title}} <br>
+<img src="{{news.image}}"><br>
+Desc: {{news.description}}<br>
+Source: {{news.source}}<br>
+Tags: {{news.tags}}<br>
+Views: {{news.views}}<br>
+Instance: {{news.news_instance}}<br>
+{% if request.user.is_superuser %}
+<a href="{% url 'news:update-news' news.id %}">Update</a>
+<a href="{% url 'news:delete-news' news.id %}">Delete</a>
+{% endif %}
+<a href="{% url 'news:view-news' news.id %}">View</a>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+{{news}}
+{% endblock %}
+{% block content %}
+Id: {{news.id}} <br>
+Title: {{news.title}} <br>
+<img src="{{news.image}}"><br>
+Desc: {{news.description}}<br>
+Source: {{news.source}}<br>
+Tags: {{news.tags}}<br>
+Views: {{news.views}}<br>
+Instance: {{news.news_instance}}<br>
+Positive: {{positive}}<br>
+Negative: {{negative}}<br>
+Neutral: {{neutral}}<br>
+Polarity: {{polarity}}<br>
+Converted Title: {{converted_title}}<br>
+Converted Description: {{converted_description}}<br>
+{% if request.user.is_superuser %}
+<a href="{% url 'news:update-news' news.id %}">Update</a>
+<a href="{% url 'news:delete-news' news.id %}">Delete</a>
+{% endif %}
+{% if request.user.is_authenticated %}
+{% if request.user not in news.likes.all %}
+<a href="{% url 'news:like-news' news.id %}">Like</a>
+{% else %}
+<a href="{% url 'news:like-news' news.id %}">Unlike</a>
+{% endif %}
+{% endif %}
+{{news.likes.count}}
+{% for comment in comments %}
+<br>
+<b>{{comment.reader}}</b>
+<i>{{comment.comment_instance}}</i>
+<p>{{comment.description}}</p>
+{% if comment.image %}
+<img src="{{comment.image.url}}" width="200" height="200">
+{% endif %}
+{% if comment.file %}
+<a href="{{comment.file.url}}">{{comment.file}}</a>
+{% endif %}
+{% endfor %}
+{% if not request.user.is_superuser %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.media }}
+    {{ form|crispy }}
+    <button type="submit">
+        Comment
+    </button>
+</form>
+{% endif %}
+<div id="container">
+<canvas id="pie-chart"></canvas>
+</div>
+<canvas id="bar-chart"></canvas>
+<script>
+var ctx = document.getElementById('bar-chart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{emotions_keys|safe}},
+        datasets: [{
+            label: 'Count of emotions',
+            data: {{emotions_values|safe}},
+            backgroundColor: [
+                '#483D8B',
+                '#00CED1',
+                '#7B68EE',
+                '#006400',
+                '#B0E0E6',
+                '#4B0082',
+                '#0000CD',
+                '#FFF8DC',
+                '#F5DEB3',
+                '#20B2AA',
+                '#BA55D3',
+                '#008080',
+                '#7FFF00',
+                '#BC8F8F',
+                '#800000',
+                '#B8860B',
+                '#90EE90',
+                '#B0C4DE',
+                '#FFDEAD',
+                '#FDF5E6',
+                '#DA70D6',
+                '#D2691E',
+                '#00BFFF',
+                '#FFE4B5',
+                '#DC143C',
+                '#000000',
+                '#C71585',
+                '#008000',
+                '#FFA07A',
+                '#FFFFFF',
+                '#7CFC00',
+                '#9400D3',
+                '#FFA07A',
+                '#E6E6FA',
+                '#D3D3D3',
+                '#000080',
+                '#FFE4E1',
+                '#FFFF00',
+                '#556B2F',
+                '#9966CC',
+                '#FAFAD2',
+                '#FF6347',
+                '#A52A2A',
+                '#32CD32',
+                '#FF0000',
+                '#2F4F4F',
+                '#FFB6C1',
+                '#FFFFF0',
+                '#FF00FF',
+                '#FFD700',
+                '#FA8072',
+                '#696969',
+                '#FF1493',
+                '#6495ED',
+                '#696969',
+                '#FF1493',
+                '#6495ED',
+                '#ADFF2F',
+                '#EEE8AA',
+                '#228B22',
+                '#00FFFF',
+                '#FFFAF0',
+                '#F8F8FF',
+                '#FF00FF',
+                '#F0E68C',
+                '#FFFFE0',
+                '#DDA0DD',
+                '#FFA500',
+                '#FFFACD',
+                '#8B4513',
+                '#778899',
+                '#00FA9A',
+                '#5F9EA0',
+                '#7B68EE',
+                '#FF8C00',
+                '#00FF00',
+                '#808080',
+                '#4682B4',
+                '#FF69B4',
+                '#00008B',
+                '#8FBC8F',
+                '#00FFFF',
+                '#8B0000',
+                '#48D1CC',
+                '#6B8E23',
+                '#F4A460',
+                '#66CDAA',
+                '#808000',
+                '#A9A9A9',
+                '#708090',
+                '#FFDAB9',
+                '#FFE4C4',
+                '#D8BFD8',
+                '#6A5ACD',
+                '#FFC0CB',
+                '#008B8B',
+                '#ADD8E6',
+                '#F0F8FF',
+                '#F08080',
+                '#FFFAFA',
+                '#AFEEEE',
+                '#EE82EE',
+                '#0000FF',
+            ],
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+            }
+        }
+    }
+});
+</script>
+<script>
+                var config = {
+                type: 'pie',
+                data: {
+                    datasets: [{
+                        data:[{{positive}}, {{negative}}, {{neutral}}],
+                        backgroundColor: [
+                            '#00ff80', '#ff6666', '#0080FF',
+                        ],
+                        label: 'Polarity'
+                        }
+                        ],
+                        labels:['Positive', 'Negative', 'Neutral'],
+                        },
+                        options: {
+                            responsive: true
+                        }
+                    };
+
+                window.onload = function() {
+                    var ctx = document.getElementById('pie-chart').getContext('2d');
+                    window.myPie = new Chart(ctx, config);
+                };
+            </script>
+{% endblock %}

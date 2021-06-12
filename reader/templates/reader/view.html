@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+{{reader}}
+{% endblock %}
+{% block content %}
+Username: {{reader.user}} <br>
+Phone: {{reader.phone_number}} <br>
+{% if reader.image %}
+Photo: <img src={{reader.image.url}}><br>
+{% endif %}
+Address: {{reader.address}}<br>
+DOB: {{reader.dob}}<br>
+Keyword: {{reader.keywords}}<br>
+<a href="{% url 'reader:update-reader' %}">Update</a>
+{% endblock %}
